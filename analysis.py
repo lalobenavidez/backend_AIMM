@@ -47,11 +47,11 @@ Para el análisis utiliza los siguientes datos históricos del ticker {ticker} e
 
 Analiza y responde:
 - Revisa la tendencia general y detecta impulsos y retrocesos relevantes.
-- Calcula los pivots mensuales con su dirección (alcista o bajista).
+- Calcula los pivots mensuales o diarios segun veas relevante con su dirección (alcista o bajista).
 - Dame la probabilidad de subida o bajada para {horizonte}.
-- Proyecta precios target y stop loss realistas.
+- Proyecta precios target y stop loss realistas y especifica en negrita si es alcista o bajista.
 - Usa regresión, volatilidad, rangos para detectar estructuras coherentes.
-- Asegúrate que el target sea >= al riesgo. Si no, descarta la transacción.
+- Dame el resultado de riesgo/recompenza en valores 
 - Explica cómo llegaste al resultado y qué métodos usaste.
 """  # ← SOLO AQUÍ CIERRAS LAS TRES COMILLAS
 
@@ -66,6 +66,6 @@ Analiza y responde:
     return response.choices[0].message.content
 
 #git add .
-#git commit -m "Corrijo formato de llaves en el prompt de conclusión"
+#git commit -m "Corrijo formato de prompt"
 #git pull
 #git push
