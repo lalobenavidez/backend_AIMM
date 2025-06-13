@@ -27,7 +27,7 @@ Usa el análisis técnico más detallado posible y responde en cinco bloques, si
 
 1. Resumen Técnico:
 2. Pivots Mensuales:
-3. Probabilidad de Subida o Bajada:
+3. Probabilidad de Subida o Bajada en %:
 4. Proyección de Precios Target y Stop Loss:
 5. Evaluación de Riesgo/Beneficio:
 
