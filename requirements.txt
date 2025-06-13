@@ -4,3 +4,4 @@ pandas
 openai
 alpha_vantage
 python-dotenv
+streamlit
