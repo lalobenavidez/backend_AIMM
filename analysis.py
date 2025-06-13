@@ -38,7 +38,7 @@ Solo el bloque JSON, así (esto es SOLO FORMATO, NO valores reales):
 {{"conclusion": {{"last_price": X, "probable_target": X, "probable_stop": X, "risk_reward_ratio": X, "probability": X}}}}
 Pero si la relación riesgo/beneficio es negativa o la transacción NO es viable, devuelve:
 
-{"conclusion": "NO_VIABLE"}
+{{"conclusion": "NO_VIABLE"}}
 
 Solo entrega ese bloque de JSON, en una sola línea, al final del análisis.
 
@@ -64,3 +64,8 @@ Analiza y responde:
     )
 
     return response.choices[0].message.content
+
+#git add .
+#git commit -m "Corrijo formato de llaves en el prompt de conclusión"
+#git pull
+#git push
