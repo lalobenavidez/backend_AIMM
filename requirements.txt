@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pandas
+openai
+alpha_vantage
+python-dotenv
