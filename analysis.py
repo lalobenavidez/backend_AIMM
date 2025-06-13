@@ -33,8 +33,10 @@ Usa el análisis técnico más detallado posible y responde en cinco bloques, si
 
 Conclusion:
 Al final del análisis, **devuelve únicamente la conclusión en una línea de JSON estrictamente válido. NO EXPLIQUES, NO COMENTES, NO AGREGUES TEXTO ANTES O DESPUÉS.**
-Solo el bloque JSON, así (sin espacios antes ni después):
-{{"conclusion": {{"last_price": 207.1, "probable_target": 210.00, "probable_stop": 205.00, "risk_reward_ratio": 2.0, "probability": 55}}}}
+Solo el bloque JSON, así (esto es SOLO FORMATO, NO valores reales):
+
+{"conclusion": {"last_price": X, "probable_target": X, "probable_stop": X, "risk_reward_ratio": X, "probability": X}}
+
 
 Solo entrega ese bloque de JSON, en una sola línea, al final del análisis.
 
