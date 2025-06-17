@@ -7,6 +7,8 @@ from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.cryptocurrencies import CryptoCurrencies
 from analysis import generar_prompt_y_analizar
 from dotenv import load_dotenv
+from pycoingecko import CoinGeckoAPI
+from datetime import datetime
 
 load_dotenv()
 
@@ -28,39 +30,22 @@ def analizar(request: AnalisisRequest):
     ticker = request.ticker.upper()
     intervalo = request.intervalo
 
-    # === Detectar si es criptomoneda ===
-    crypto_symbols = {
-        "BTC", "BTC/USD", "ETH", "ETH/USD", "SOL", "SOL/USD", "ADA", "ADA/USD", "BNB", "BNB/USD"
-    }
+    crypto_symbols = {"BTC", "BTC/USD", "ETH", "ETH/USD", ...}
 
     try:
         if ticker in crypto_symbols:
-            # === LIMPIAR ticker (BTC/USD -> BTC) ===
-            crypto_symbol = ticker.split("/")[0]
-            market = "USD"
-
-            cc = CryptoCurrencies(key=ALPHA_VANTAGE_API_KEY, output_format='pandas')
-            data, meta = cc.get_digital_currency_daily(symbol=crypto_symbol, market=market)
-
-            print(f"✅ Columnas originales cripto: {data.columns.tolist()}")
-
-            # === Manejo dinámico de nombres de columnas ===
-            columnas_opciones = [
-                ['1a. open (USD)', '2a. high (USD)', '3a. low (USD)', '4a. close (USD)', '5. volume'],
-                ['1. open', '2. high', '3. low', '4. close', '5. volume'],
-                ['1. open', '2. high', '3. low', '4. close', 'Volume']
-            ]
-
-            rename_map = None
-            for cols in columnas_opciones:
-                if all(col in data.columns for col in cols):
-                    rename_map = dict(zip(cols, ['Open', 'High', 'Low', 'Close', 'Volume']))
-                    break
-
-            if rename_map is None:
-                raise Exception(f"❌ No se reconocieron columnas válidas para BTC/USD. Columnas reales: {data.columns.tolist()}")
-
-            data = data.rename(columns=rename_map).dropna().tail(50)
+            crypto_symbol = ticker.split("/")[0].lower()  # coin ID en minúscula
+            cg = CoinGeckoAPI()
+            days_map = {"1D": 1, "1W": 7, "1M": 30}
+            days = days_map.get(intervalo, 1)
+            ohlc = cg.get_coin_ohlc_by_id(id=crypto_symbol, vs_currency='usd', days=days)
+            
+            # Crear DataFrame con timestamp y OHLC
+            df = pd.DataFrame(ohlc, columns=['timestamp', 'Open', 'High', 'Low', 'Close'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+            df.set_index('timestamp', inplace=True)
+            df['Volume'] = None  # CoinGecko no entrega volumen directo aquí
+            data = df.tail(50)
 
         else:
             # === FLUJO PARA ACCIONES ===
@@ -117,7 +102,7 @@ print("🔐 ALPHA_VANTAGE_API_KEY:", ALPHA_VANTAGE_API_KEY)
 
 
 #git add .
-#git commit -m "Corrijo formato de llaves en el prompt de conclusión"
+#git commit -m "agrego coingeco datos criptos"
 #git pull
 #git push
 
