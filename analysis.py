@@ -48,7 +48,7 @@ Analiza y responde:
 - Dame la probabilidad de subida o bajada para {horizonte}.
 - Proyecta precios target y stop loss realistas y especifica en negrita si es alcista o bajista.
 - Usa regresión, volatilidad, rangos para detectar estructuras coherentes.
-- Dame el resultado de riesgo/recompenza en valores 
+- Dame el resultado de riesgo/recompenza utilizando los valores de target y stop
 - Explica cómo llegaste al resultado y qué métodos usaste.
 """  # ← SOLO AQUÍ CIERRAS LAS TRES COMILLAS
 
