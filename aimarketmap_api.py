@@ -42,14 +42,25 @@ def analizar(request: AnalisisRequest):
             cc = CryptoCurrencies(key=ALPHA_VANTAGE_API_KEY, output_format='pandas')
             data, meta = cc.get_digital_currency_daily(symbol=crypto_symbol, market=market)
 
-            # Renombrar columnas para mantener consistencia
-            data = data.rename(columns={
-                '1a. open (USD)': 'Open',
-                '2a. high (USD)': 'High',
-                '3a. low (USD)': 'Low',
-                '4a. close (USD)': 'Close',
-                '5. volume': 'Volume'
-            }).dropna().tail(50)
+            print(f"✅ Columnas originales cripto: {data.columns.tolist()}")
+
+            # === Manejo dinámico de nombres de columnas ===
+            columnas_opciones = [
+                ['1a. open (USD)', '2a. high (USD)', '3a. low (USD)', '4a. close (USD)', '5. volume'],
+                ['1. open', '2. high', '3. low', '4. close', '5. volume'],
+                ['1. open', '2. high', '3. low', '4. close', 'Volume']
+            ]
+
+            rename_map = None
+            for cols in columnas_opciones:
+                if all(col in data.columns for col in cols):
+                    rename_map = dict(zip(cols, ['Open', 'High', 'Low', 'Close', 'Volume']))
+                    break
+
+            if rename_map is None:
+                raise Exception(f"❌ No se reconocieron columnas válidas para BTC/USD. Columnas reales: {data.columns.tolist()}")
+
+            data = data.rename(columns=rename_map).dropna().tail(50)
 
         else:
             # === FLUJO PARA ACCIONES ===
@@ -85,13 +96,19 @@ def analizar(request: AnalisisRequest):
 
     except Exception as e:
         print("❌ ERROR al obtener datos:", e)
-        return {"error": f"Error obteniendo datos de Alpha Vantage: {e}"}
+        return {"error": f"Error obteniendo datos de Alpha Vantage: {str(e)}"}
 
     print("✅ DATA ENVIADA AL PROMPT:\n", data.head())
-    resultado = generar_prompt_y_analizar(ticker, intervalo, data)
+    try:
+        resultado = generar_prompt_y_analizar(ticker, intervalo, data)
+    except Exception as e:
+        print("❌ ERROR en generar_prompt_y_analizar:", e)
+        return {"error": f"Error al generar análisis con AI: {str(e)}"}
+
     print("🧠 RESULTADO DEL ANALISIS:\n", resultado)
 
     return {"resultado": resultado}
+
 
 
 # Debug prints al iniciar
