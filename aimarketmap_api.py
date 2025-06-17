@@ -30,25 +30,37 @@ def analizar(request: AnalisisRequest):
     ticker = request.ticker.upper()
     intervalo = request.intervalo
 
-    crypto_symbols = {"BTC", "BTC/USD", "ETH", "ETH/USD", ...}
+    # ✅ Lista válida de símbolos de criptos
+    crypto_symbols = {
+        "BTC", "BTC/USD",
+        "ETH", "ETH/USD",
+        "SOL", "SOL/USD",
+        "ADA", "ADA/USD",
+        "BNB", "BNB/USD"
+    }
 
     try:
+        # ✅ Aseguramos que el ticker esté en mayúsculas
         if ticker in crypto_symbols:
-            crypto_symbol = ticker.split("/")[0].lower()  # coin ID en minúscula
+            print(f"🔍 Analizando {ticker} con CoinGecko...")
+            crypto_symbol = ticker.split("/")[0].lower()
             cg = CoinGeckoAPI()
+
+            # Mapear intervalos de CoinGecko (sólo permite ciertos días)
             days_map = {"1D": 1, "1W": 7, "1M": 30}
-            days = days_map.get(intervalo, 1)
+            days = days_map.get(intervalo.upper(), 1)
+
             ohlc = cg.get_coin_ohlc_by_id(id=crypto_symbol, vs_currency='usd', days=days)
-            
-            # Crear DataFrame con timestamp y OHLC
+
+            # Crear DataFrame
             df = pd.DataFrame(ohlc, columns=['timestamp', 'Open', 'High', 'Low', 'Close'])
             df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
             df.set_index('timestamp', inplace=True)
-            df['Volume'] = None  # CoinGecko no entrega volumen directo aquí
+            df['Volume'] = None  # CoinGecko no entrega volumen aquí
             data = df.tail(50)
 
         else:
-            # === FLUJO PARA ACCIONES ===
+            print(f"📈 Analizando {ticker} con Alpha Vantage...")
             av_intervals = {
                 '15M': ('15min', 'compact'),
                 '1H': ('60min', 'compact'),
@@ -56,7 +68,7 @@ def analizar(request: AnalisisRequest):
                 '1W': ('weekly', 'compact'),
                 '1M': ('monthly', 'compact'),
             }
-            interval, outputsize = av_intervals.get(intervalo, ('daily', 'compact'))
+            interval, outputsize = av_intervals.get(intervalo.upper(), ('daily', 'compact'))
 
             ts = TimeSeries(key=ALPHA_VANTAGE_API_KEY, output_format='pandas')
 
@@ -81,7 +93,7 @@ def analizar(request: AnalisisRequest):
 
     except Exception as e:
         print("❌ ERROR al obtener datos:", e)
-        return {"error": f"Error obteniendo datos de Alpha Vantage: {str(e)}"}
+        return {"error": f"Error obteniendo datos de mercado: {str(e)}"}
 
     print("✅ DATA ENVIADA AL PROMPT:\n", data.head())
     try:
