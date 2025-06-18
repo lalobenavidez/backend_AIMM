@@ -113,7 +113,13 @@ def analizar(request: AnalisisRequest):
 
     print("🧠 RESULTADO DEL ANALISIS:\n", resultado)
 
-    return {"resultado": resultado}
+    # ✅ Convierte el DataFrame a JSON para enviarlo al frontend
+    data_json = data.reset_index().to_dict(orient='records')
+    return {
+        "resultado": resultado,
+        "data": data_json
+    }
+
 
 
 # Debug prints al iniciar
