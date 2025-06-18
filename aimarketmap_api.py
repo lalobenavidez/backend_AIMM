@@ -4,7 +4,6 @@ import pandas as pd
 import openai
 import os
 from alpha_vantage.timeseries import TimeSeries
-from alpha_vantage.cryptocurrencies import CryptoCurrencies
 from analysis import generar_prompt_y_analizar
 from dotenv import load_dotenv
 from pycoingecko import CoinGeckoAPI
@@ -28,9 +27,8 @@ def root():
 @app.post("/analizar")
 def analizar(request: AnalisisRequest):
     ticker = request.ticker.upper()
-    intervalo = request.intervalo
+    intervalo = request.intervalo.upper()
 
-    # ✅ Lista válida de símbolos de criptos
     crypto_symbols = {
         "BTC", "BTC/USD",
         "ETH", "ETH/USD",
@@ -40,23 +38,34 @@ def analizar(request: AnalisisRequest):
     }
 
     try:
-        # ✅ Aseguramos que el ticker esté en mayúsculas
         if ticker in crypto_symbols:
             print(f"🔍 Analizando {ticker} con CoinGecko...")
-            crypto_symbol = ticker.split("/")[0].lower()
-            cg = CoinGeckoAPI()
 
-            # Mapear intervalos de CoinGecko (sólo permite ciertos días)
+            # Map de símbolos -> ID reales de CoinGecko
+            coingecko_ids = {
+                "BTC": "bitcoin",
+                "ETH": "ethereum",
+                "SOL": "solana",
+                "ADA": "cardano",
+                "BNB": "binancecoin"
+            }
+
+            base_symbol = ticker.split("/")[0]
+            crypto_symbol = coingecko_ids.get(base_symbol)
+
+            if not crypto_symbol:
+                raise Exception(f"Ticker {base_symbol} no tiene un ID válido en CoinGecko.")
+
+            cg = CoinGeckoAPI()
             days_map = {"1D": 1, "1W": 7, "1M": 30}
-            days = days_map.get(intervalo.upper(), 1)
+            days = days_map.get(intervalo, 1)
 
             ohlc = cg.get_coin_ohlc_by_id(id=crypto_symbol, vs_currency='usd', days=days)
 
-            # Crear DataFrame
             df = pd.DataFrame(ohlc, columns=['timestamp', 'Open', 'High', 'Low', 'Close'])
             df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
             df.set_index('timestamp', inplace=True)
-            df['Volume'] = None  # CoinGecko no entrega volumen aquí
+            df['Volume'] = None
             data = df.tail(50)
 
         else:
@@ -68,7 +77,7 @@ def analizar(request: AnalisisRequest):
                 '1W': ('weekly', 'compact'),
                 '1M': ('monthly', 'compact'),
             }
-            interval, outputsize = av_intervals.get(intervalo.upper(), ('daily', 'compact'))
+            interval, outputsize = av_intervals.get(intervalo, ('daily', 'compact'))
 
             ts = TimeSeries(key=ALPHA_VANTAGE_API_KEY, output_format='pandas')
 
@@ -107,11 +116,10 @@ def analizar(request: AnalisisRequest):
     return {"resultado": resultado}
 
 
-
-
 # Debug prints al iniciar
 print("🔐 OPENAI_API_KEY:", openai.api_key)
 print("🔐 ALPHA_VANTAGE_API_KEY:", ALPHA_VANTAGE_API_KEY)
+
 
 
 #git add .
