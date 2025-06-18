@@ -108,6 +108,7 @@ def analizar(request: AnalisisRequest):
 
 
 
+
 # Debug prints al iniciar
 print("🔐 OPENAI_API_KEY:", openai.api_key)
 print("🔐 ALPHA_VANTAGE_API_KEY:", ALPHA_VANTAGE_API_KEY)
