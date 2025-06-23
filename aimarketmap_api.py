@@ -98,7 +98,7 @@ def analizar(request: AnalisisRequest):
                 '3. low': 'Low',
                 '4. close': 'Close',
                 '5. volume': 'Volume'
-            }).dropna().tail(50)
+            }).dropna().head(50)
 
     except Exception as e:
         print("❌ ERROR al obtener datos:", e)

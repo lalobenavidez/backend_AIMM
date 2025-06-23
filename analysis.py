@@ -63,6 +63,6 @@ Analiza y responde:
     return response.choices[0].message.content
 
 #git add .
-#git commit -m "Corrijo formato de prompt"
+#git commit -m "Corrijo formato de prompt RR"
 #git pull
 #git push
